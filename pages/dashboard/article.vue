@@ -14,15 +14,13 @@ import type {
 import { AgGridVue } from 'ag-grid-vue3';
 import { defu } from 'defu';
 import type { PreviewArticle } from '#components';
-import { readBlob } from '#shared/utils';
 import { durationToSeconds, formatItemShowType, formatTimeStamp, sleep } from '#shared/utils/helpers';
-import { normalizeHtml } from '#shared/utils/html';
 import GridActions from '~/components/grid/Actions.vue';
 import GridAlbum from '~/components/grid/Album.vue';
 import GridCoverTooltip from '~/components/grid/CoverTooltip.vue';
 import GridStatusBar from '~/components/grid/StatusBar.vue';
 import AccountSelectorForArticle from '~/components/selector/AccountSelectorForArticle.vue';
-import { isDev, websiteName } from '~/config';
+import { websiteName } from '~/config';
 import { sharedGridOptions } from '~/config/shared-grid-options';
 import { articleDeleted, getArticleCache } from '~/store/v2/article';
 import { getCommentCache } from '~/store/v2/comment';
@@ -444,15 +442,6 @@ const {
   total_count: exportTotalCount,
   exportFile,
 } = useExporter();
-
-async function debug() {
-  const cache = await getHtmlCache('https://mp.weixin.qq.com/s/Uzr9f6SRQ_H1qM812vYXdg');
-  if (cache) {
-    const rawHtml = await readBlob(cache.file);
-    const html = normalizeHtml(rawHtml);
-    console.log(html);
-  }
-}
 </script>
 
 <template>
@@ -471,53 +460,23 @@ async function debug() {
         </div>
         <div class="flex items-center space-x-2">
           <UButton v-if="downloadBtnLoading" color="black" @click="stopDownload">停止</UButton>
-          <ButtonGroup
-            :items="[
-              { label: '文章内容', event: 'download-article-html' },
-              { label: '阅读量 (需要Credential)', event: 'download-article-metadata' },
-              { label: '留言内容 (需要Credential)', event: 'download-article-comment' },
-            ]"
-            @download-article-html="download('html', selectedArticleUrls)"
-            @download-article-metadata="download('metadata', selectedArticleUrls)"
-            @download-article-comment="download('comment', selectedArticleUrls)"
-          >
-            <UButton
-              :loading="downloadBtnLoading"
-              :disabled="!selectedAccount"
-              color="white"
-              class="font-mono"
-              :label="downloadBtnLoading ? `抓取中 ${downloadCompletedCount}/${downloadTotalCount}` : '抓取'"
-              trailing-icon="i-heroicons-chevron-down-20-solid"
-            />
-          </ButtonGroup>
+          <UButton
+            :loading="downloadBtnLoading"
+            :disabled="!selectedAccount"
+            color="white"
+            class="font-mono"
+            :label="downloadBtnLoading ? `抓取中 ${downloadCompletedCount}/${downloadTotalCount}` : '抓取文章内容'"
+            @click="download('html', selectedArticleUrls)"
+          />
 
-          <ButtonGroup
-            :items="[
-              { label: 'Excel', event: 'export-article-excel' },
-              { label: 'JSON', event: 'export-article-json' },
-              { label: 'HTML', event: 'export-article-html' },
-              { label: 'Txt', event: 'export-article-text' },
-              { label: 'Markdown', event: 'export-article-markdown' },
-              { label: 'Word (内测中)', event: 'export-article-word' },
-              // { label: 'PDF (计划中)', event: 'export-article-pdf', disabled: true },
-            ]"
-            @export-article-excel="exportFile('excel', selectedArticleUrls)"
-            @export-article-json="exportFile('json', selectedArticleUrls)"
-            @export-article-html="exportFile('html', selectedArticleUrls)"
-            @export-article-text="exportFile('text', selectedArticleUrls)"
-            @export-article-markdown="exportFile('markdown', selectedArticleUrls)"
-            @export-article-word="exportFile('word', selectedArticleUrls)"
-          >
-            <UButton
-              :loading="exportBtnLoading"
-              :disabled="!selectedAccount"
-              color="white"
-              class="font-mono"
-              :label="exportBtnLoading ? `${exportPhase} ${exportCompletedCount}/${exportTotalCount}` : '导出'"
-              trailing-icon="i-heroicons-chevron-down-20-solid"
-            />
-          </ButtonGroup>
-          <UButton v-if="isDev" @click="debug">调试</UButton>
+          <UButton
+            :loading="exportBtnLoading"
+            :disabled="!selectedAccount"
+            color="white"
+            class="font-mono"
+            :label="exportBtnLoading ? `${exportPhase} ${exportCompletedCount}/${exportTotalCount}` : '导出 HTML'"
+            @click="exportFile('html', selectedArticleUrls)"
+          />
         </div>
       </header>
 

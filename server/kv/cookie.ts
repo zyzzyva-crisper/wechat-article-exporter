@@ -7,21 +7,17 @@ export interface CookieKVValue {
   cookies: CookieEntity[];
 }
 
+const memoryStore = new Map<string, CookieKVValue>();
+
 export async function setMpCookie(key: CookieKVKey, data: CookieKVValue): Promise<boolean> {
-  const kv = useStorage('kv');
-  try {
-    await kv.set<CookieKVValue>(`cookie:${key}`, data, {
-      // https://developers.cloudflare.com/kv/api/write-key-value-pairs/#expiring-keys
-      expirationTtl: 60 * 60 * 24 * 4, // 4 days
-    });
-    return true;
-  } catch (err) {
-    console.error('kv.set call failed:', err);
-    return false;
-  }
+  memoryStore.set(key, data);
+  return true;
 }
 
 export async function getMpCookie(key: CookieKVKey): Promise<CookieKVValue | null> {
-  const kv = useStorage('kv');
-  return await kv.get<CookieKVValue>(`cookie:${key}`);
+  return memoryStore.get(key) || null;
+}
+
+export function clearMpCookies(): void {
+  memoryStore.clear();
 }
