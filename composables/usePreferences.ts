@@ -9,10 +9,10 @@ const defaultOptions: Partial<Preferences> = {
   exportConfig: {
     dirname: '${title}',
     maxlength: 0,
-    exportExcelIncludeContent: true,
-    exportJsonIncludeComments: true,
-    exportJsonIncludeContent: true,
-    exportHtmlIncludeComments: true,
+    exportExcelIncludeContent: false,
+    exportJsonIncludeComments: false,
+    exportJsonIncludeContent: false,
+    exportHtmlIncludeComments: false,
   },
   downloadConfig: {
     forceDownloadContent: false,

@@ -36,3 +36,8 @@ export async function deleteAccountData(ids: string[]): Promise<void> {
     }
   );
 }
+
+export async function clearAllData(): Promise<void> {
+  await db.delete();
+  await db.open();
+}
