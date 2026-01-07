@@ -75,13 +75,8 @@ export async function proxyMpRequest(options: RequestOptions) {
 
       const { redirect_url } = await mpResponse.clone().json();
       const token = new URL(`http://localhost${redirect_url}`).searchParams.get('token')!;
-      console.log('token', token);
       const success = await cookieStore.setCookie(authKey, token, mpResponse.headers.getSetCookie());
-      if (success) {
-        console.log('cookie 写入成功');
-      } else {
-        console.log('cookie 写入失败');
-      }
+      void success;
 
       setCookies = [
         `auth-key=${authKey}; Path=/; Expires=${dayjs().add(4, 'days').toString()}; Secure; HttpOnly`,
@@ -90,7 +85,7 @@ export async function proxyMpRequest(options: RequestOptions) {
         `uuid=EXPIRED; Path=/; Expires=${dayjs().subtract(1, 'days').toString()}; Secure; HttpOnly`,
       ];
     } catch (error) {
-      console.error('action(login) failed:', error);
+      console.error('action(login) failed');
     }
   }
 

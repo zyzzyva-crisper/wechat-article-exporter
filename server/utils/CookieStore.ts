@@ -115,7 +115,7 @@ class CookieStore {
     // 优先从本地内存取
     let cachedAccountCookie = this.store.get(authKey);
 
-    // 如果内存没有，则从 kv 数据库取
+    // 如果内存没有，则从内存 KV 取
     if (!cachedAccountCookie) {
       const cookieValue = await getMpCookie(authKey);
       if (!cookieValue) {
@@ -152,6 +152,14 @@ class CookieStore {
     const accountCookie = new AccountCookie(token, cookie);
     this.store.set(authKey, accountCookie);
     return await setMpCookie(authKey, accountCookie.toJSON());
+  }
+
+  clear(authKey: string): void {
+    this.store.delete(authKey);
+  }
+
+  clearAll(): void {
+    this.store.clear();
   }
 
   /**
