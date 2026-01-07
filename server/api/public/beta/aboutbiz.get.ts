@@ -86,9 +86,6 @@ function extractInfo(rawHTML: string) {
         .name.map(item => item.trim());
     } else if (title === '客服电话') {
       result.phone = $itemInfo.find('.item-desc').text().trim();
-    } else {
-      console.log(`title: <${title}>`);
-      console.log($itemInfo.text());
     }
 
     $itemInfo = $itemInfo.next('.item-info');
@@ -105,7 +102,7 @@ function extractInfo(rawHTML: string) {
     try {
       eval(scriptCode);
     } catch (e) {
-      console.error('eval execute js code fatal:', e);
+      console.error('eval execute js code failed');
     }
     if (window.ip_wording) {
       result.ip_wording = window.ip_wording;

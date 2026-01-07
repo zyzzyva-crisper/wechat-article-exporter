@@ -4,6 +4,7 @@ import { request } from '#shared/utils/request';
 import LoginModal from '~/components/modal/Login.vue';
 import StorageUsage from '~/components/StorageUsage.vue';
 import { IMAGE_PROXY } from '~/config';
+import { clearAllData } from '~/store/v2';
 import type { LogoutResponse } from '~/types/types';
 
 const loginAccount = useLoginAccount();
@@ -76,6 +77,7 @@ function login() {
 }
 
 const logoutBtnLoading = ref(false);
+const clearBtnLoading = ref(false);
 
 async function logout() {
   logoutBtnLoading.value = true;
@@ -86,6 +88,33 @@ async function logout() {
     alert(statusText);
   }
   logoutBtnLoading.value = false;
+}
+
+function clearLocalStorage() {
+  const keys = [
+    'login',
+    'preferences',
+    'credentials',
+    'agGridColumnState',
+    'agGridColumnState-account',
+    'wechat-proxy',
+    'auto-detect-credentials:monitoring',
+    'auto-detect-credentials:monitoring-timer',
+    'auto-detect-credentials:apikey',
+  ];
+  keys.forEach(key => localStorage.removeItem(key));
+}
+
+async function clearAndLogout() {
+  clearBtnLoading.value = true;
+  try {
+    await request('/api/clear', { method: 'POST' });
+    await clearAllData();
+    clearLocalStorage();
+    loginAccount.value = null;
+  } finally {
+    clearBtnLoading.value = false;
+  }
 }
 
 let timer: number;
@@ -126,6 +155,14 @@ onUnmounted(() => {
           class="bg-slate-10 hover:bg-rose-500 disabled:bg-rose-500"
           @click="logout"
           >退出
+        </UButton>
+        <UButton
+          icon="i-heroicons-trash-16-solid"
+          :loading="clearBtnLoading"
+          color="gray"
+          variant="soft"
+          @click="clearAndLogout"
+          >退出并清除数据
         </UButton>
       </div>
       <div class="text-sm">

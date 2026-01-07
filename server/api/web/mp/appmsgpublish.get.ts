@@ -45,8 +45,8 @@ export default defineEventHandler(async event => {
     endpoint: 'https://mp.weixin.qq.com/cgi-bin/appmsgpublish',
     query: params,
     parseJson: true,
-  }).catch(e => {
-    console.error(e);
+  }).catch(() => {
+    console.error('fetch appmsgpublish failed');
     return {
       base_resp: {
         ret: -1,
